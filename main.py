@@ -37,6 +37,7 @@ def list_movies_summary(head):
 ##Metodo para bajar de la api el summary de una pelicula, se crea un json con los sumarys de las peliculas de una lista
 ## Esta limitado para probar que mando el tamaño de los datos, por que si no el tiempo de ejecucion es muy largo
 ##len(item_json) len(item_json) - 1
+##
 def summary_movies (item_json):
 
     for i in range(10):
