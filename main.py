@@ -11,7 +11,9 @@ headers = {
 }
 
 
-
+## Metodo para pedir las listas trending,describir las movies de la lista, y el summary de las peliculas
+## todo compilado en un solo json
+## esta quemado el rango para por que la ejecucion es lenta
 ##len(list_trending.json()) len(list_trending.json())-1
 def list_movies_summary(head):
     list_trending = requests.get('https://api.trakt.tv/lists/trending', headers=head)
@@ -32,6 +34,8 @@ def list_movies_summary(head):
 
     return result
 
+##Metodo para bajar de la api el summary de una pelicula, se crea un json con los sumarys de las peliculas de una lista
+## Esta limitado para probar que mando el tamaño de los datos, por que si no el tiempo de ejecucion es muy largo
 ##len(item_json) len(item_json) - 1
 def summary_movies (item_json):
 
