@@ -34,7 +34,7 @@ pip3 install requests
 pip3 install simplejson
 
 #Clonamos el repositorio
-git clone --branch master https://github.com/lorenzoflerez/trakt_etl.git
+git clone --branch production https://github.com/lorenzoflerez/trakt_etl.git
 
 
 
