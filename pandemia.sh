@@ -28,18 +28,14 @@ then
 
 #Si python esta instala librerias
 pip3 -m pip install --upgrade pip3
-pip3 install pandas
 pip3 install boto3
 pip3 install requests
 pip3 install simplejson
-
-#Clonamos el repositorio
-git clone --branch master https://github.com/lorenzoflerez/trakt_etl.git
-
-
+mkdir librerias
+pip3 install pandas -t librerias
+aws s3 cp /librerias s3://produccion/librerias --recursive
 
 #Si no estuviese instalado...por  ejemplo lo instalamos...
-
 else
 
 yum install python3
