@@ -44,7 +44,7 @@ Amazon CloudWatch es un servicio de monitorización y observación creado para i
 en ejecución sin problemas.(https://aws.amazon.com/es/cloudwatch/)
 
 
-![lambda](/images/aws-lambda.svg)
+![lambda](/images/aws-lambda.png)
 Con Lambda, puede ejecutar código para casi cualquier tipo de aplicación o servicio backend sin tener que realizar tareas de administración. Solo tiene que cargar el código y Lambda se encargará de todo lo necesario para ejecutar y escalar el código con alta disponibilidad. Puede configurar su código para que se active automáticamente desde otros servicios de AWS o puede llamarlo directamente desde cualquier aplicación web o móvil.(https://aws.amazon.com/es/lambda/)
 
 
