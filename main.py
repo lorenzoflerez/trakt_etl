@@ -105,7 +105,7 @@ def people_movies(item_json):
 def upload_s3(endpoint, Body, nameFile):
     now = str(datetime.now())[0:16]
 
-    s3.put_object(Body=Body, Bucket='proyecto.final.pruebas',
+    s3.put_object(Body=Body, Bucket='produccion',
                   Key="{date}/prueba/{endpoint}/{namefile}".format(date=now, endpoint=endpoint, namefile=nameFile))
 
 
