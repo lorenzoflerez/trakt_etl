@@ -1,6 +1,8 @@
 import boto3
 import pandas as pd
 import json
+import pymysql
+from datetime import datetime
 
 s3 = boto3.client('s3')
 invokelambda = boto3.client('lambda', region_name='us-east-2')
@@ -29,64 +31,88 @@ def Extract_json_from_S3(bucket):
 
 def filter_json_info(json):
     movies_json = json['bucket_info']
-    api_download =json['api_download']
+    api_download = json['api_download']
     for i in range(len(movies_json)):
         movie_info = movies_json[i]['list_info']['movies_summary']
-        movies_info_df = filter_info_movies(movie_info,api_download)
-        movies_info_df =movies_info_df.append(movies_info_df)
+        movies_info_df = filter_info_movies(movie_info, api_download)
+        movies_info_df = movies_info_df.append(movies_info_df)
     return movies_info_df
 
-#download_api : momento en el que se baja la informacion de la api
-def filter_info_movies(movies_info,download_api):
-    movies_info_df = pd.DataFrame(
-        columns=('title', 'year', 'id_movie', 'overview', 'released', 'country', 'language', 'genres'))
 
-    movies_stas_df = pd.DataFrame(
-        columns=('runtime', 'rating', 'id_movie', 'votes', 'comment_count', 'updated_at','translated','download_api'))
+# download_api : momento en el que se baja la informacion de la api
+def filter_info_movies(movies_info, download_api):
+    movies_info_df = pd.DataFrame(
+        columns=(
+        'title', 'year', 'id_movie', 'overview', 'released', 'country', 'language', 'genres', 'runtime', 'rating'
+        , 'votes', 'comment_count', 'updated_at', 'translated', 'download_api'))
 
     for j in range(len(movies_info)):
         summary = movies_info[j]
 
         movies_info_df = pd.DataFrame(
-            [[summary['title'], summary['year'], summary['ids']['trakt'], summary['overview'],
-              summary['released'], summary['country'], summary['language'], summary['genres']]],
-            columns=['title', 'year', 'id_movie', 'overview', 'released', 'country', 'language', 'genres']).append(
+            [[summary['title'], summary['year'], summary['ids']['imdb'], summary['overview'],
+              summary['released'], summary['country'], summary['language'], summary['genres'], summary['runtime'],
+              summary['rating'],
+              summary['votes'], summary['comment_count'], summary['updated_at'], summary['available_translations'],
+              download_api]],
+            columns=['title', 'year', 'id_movie', 'overview', 'released', 'country', 'language', 'genres', 'runtime',
+                     'rating', 'votes', 'comment_count', 'updated_at', 'translated',
+                     'download_api']).append(
             movies_info_df)
 
-        movies_stas_df = pd.DataFrame(
-            [[summary['runtime'], summary['rating'], summary['ids']['trakt'],
-              summary['votes'],summary['comment_count'], summary['updated_at'],summary['available_translations'],download_api]],
-             columns =['runtime', 'rating', 'id_movie', 'votes', 'comment_count', 'updated_at','translated','download_api']).append(
-            movies_stas_df)
-
-    movies_df = pd.merge(movies_info_df, movies_stas_df, on='id_movie')
+    movies_df = movies_info_df
     return movies_df
 
 
 def change_type_data(movies_df):
-    ## hacer los procesos de cambiar los tipos de datos
-    d=''
+    now = datetime.now()
+    movies_df2['download_api'] = pd.to_datetime(movie_df['download_api'])
+    movies_df2['update_to_bd'] = pd.to_datetime(now)
+
+    movies_upload = (movies_df2[['title', 'year', 'id_movie', 'overview', 'language', 'download_api', 'update_to_bd']])
+
+    stad_upload = (movies_df2[['title', 'id_movie', 'released', 'country', 'genres', 'runtime',
+                               'rating', 'votes', 'comment_count', 'updated_at', 'translated',
+                               'download_api', 'update_to_bd']])
+    update_info_bd(movies_upload)
+    update_info_bd(stad_upload)
+
+
 def update_info_bd(movies_df):
-    ## Lo necesario para conectarse a RBs
-    d=''
-#lambada 1 handler
+    cols = "`,`".join([str(i) for i in movies_df.columns.tolist()])
+
+    for i, row in movies_df.iterrows():
+        sql = "INSERT INTO `Estadisticas` (`" + cols + "`) VALUES (" + "%s," * (len(row) - 1) + "%s)"
+        cursor.execute(sql, tuple(row))
+        conn.commit()
+
+    conn.close()
+
+
+# lambada 1 handler
 movies_json = json.loads(Extract_json_from_S3('produccion'))
-##invokelambda(movies_json,'')
-#lambda 2 handler
+##invokelambda(movies_json,'fliter_data_movies')
+# lambda 2 handler
 movie_df = filter_json_info(movies_json)
 movies_json_df = movie_df.to_json(orient='split')
 ##invokelambda(movies_json_df,'')
 
-#lammbda 3 handler informacion con el evento
+# lammbda 3 handler informacion con el evento
 jsond = json.loads(jsond)
 movies_df2 = pd.DataFrame(jsond['data'], columns = jsond['columns'])
 
+endpoint = "databasemovies.cnjxvyvv4pkm.us-east-2.rds.amazonaws.com"
+PORT = "3306"
+username = "admin"
+password = "12345678"
+databsa_name = "databasemovies"
+
+conn = pymysql.connect(endpoint, user=username, passwd=password)
+
+cursor = conn.cursor()
 
 
 
-# rint(movies_df.astype(str).dtypes)
-# print(movies_df['updated_at'].dtype)
 
-##movies_df['updated_at'] = pd.to_datetime(movies_df['updated_at'])
 
-##print(movies_df['updated_at'].dtype)
+
